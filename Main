@@ -75,6 +75,8 @@ class Product:
         # Return formatted string.
         return f"{self.product_id} {self.name} {self.get_category_name()} {self.quantity} {self.price:.2f}"
 
+# PART 2
+
 def load_products(filename):
     pass
 
