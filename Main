@@ -124,7 +124,19 @@ def low_stock_report(products):
     pass
 
 def inventory_summary(products):
-    pass
+    print("\n--- Inventory Summary ---")
+    if len(products) == 0:
+        print("No products in inventory.")
+        return
+
+    total_products = len(products)
+    total_quantity = 0
+
+    for p in products:
+        total_quantity += p.get_quantity()
+
+    print(f"\nTotal Products: {total_products}")
+    print(f"Total Quantity: {total_quantity}")
 
 def list_products_by_category(products):
     pass
