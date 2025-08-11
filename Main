@@ -181,6 +181,7 @@ def main():
         elif choice == 9:
             list_products_by_category(products)
         elif choice == 10:
+            print("\n--- All Products ---")
             print_products(products)
         elif choice == 11:
             save_products(filename, products)
