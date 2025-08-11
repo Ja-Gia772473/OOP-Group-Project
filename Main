@@ -145,10 +145,16 @@ def product_index(products):
     pass
 
 def print_products(products):
-    pass
+    if len(products) == 0:
+        print("No products to display.")
+        return
+    print(f"\n{'ID':<10} {'Name':<20} {'Category':<18} {'Qty':<5} {'Price':<10}")
+    print("-" * 64)
+    for p in products:
+        print(f"{p.get_product_id():<10} {p.get_name():<20} {p.get_category_name():<18} {p.get_quantity():<5} ${p.get_price():<9.2f}")
 
-    
 
+#Main code here...
 
 def main():
     filename = "inventory.csv"
