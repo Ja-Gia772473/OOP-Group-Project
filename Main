@@ -11,7 +11,7 @@ def main():
         elif choice == 3:
             edit_product(products)
         elif choice == 4:
-            pass
+            search_product(products, term)
         elif choice == 5:
             sell_product(products)
         elif choice == 6:
