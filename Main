@@ -77,8 +77,22 @@ class Product:
 
 # PART 2
 
-def load_products(filename):
-    pass
+def load_products(filename): # ID, Name, Category Idnex. Quantity, Price, Reorder Level. CVS file order.
+    products = []
+    with open(filename, 'r') as file:
+        csv_reader = csv.reader(file)
+        for row in csv_reader:
+            product_id = row[0]
+            name = row[1]
+            category_index = row[2]
+            quantity = row[3]
+            price = row[4]
+            reorder_level = row[5]
+
+            product = Product(product_id, name, category_index, quantity, price, reorder_level)
+            products.append(product)
+    
+    return products
 
 def save_products(filename, products):
     pass
