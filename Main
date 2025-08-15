@@ -96,6 +96,10 @@ def load_products(filename): # ID, Name, Category Idnex. Quantity, Price, Reorde
 
 def save_products(filename, products):
     pass
+    with open(filename, "w") as file:
+        csv_writer = csv.writer(file)
+        pass
+
 
 def print_menu():
     print("*************************************************")
@@ -123,6 +127,16 @@ def search_product(product, term):
 
 def add_product(products):
     pass
+    products_list = products
+    id = input("Whats the product's ID? ")
+    name = input("Whats is the product? ")
+    category = int(input("What category is the product in? "))
+    price = float(input("How much is this product? "))
+    reorder = int(input("What is the reorder level of this product? "))
+
+    product = Product(id, name, category, price, reorder)
+    products_list.append(product)
+    return products_list
 
 def remove_product(products):
     pass
@@ -138,6 +152,11 @@ def restock_product(products):
 
 def low_stock_report(products):
     pass
+    restock_list = []
+    for p in products:
+        low_product = p.needs_restock()
+        restock_list.append(low_product)
+    return restock_list
 
 def inventory_summary(products):
     print("\n--- Inventory Summary ---")
@@ -156,6 +175,12 @@ def inventory_summary(products):
 
 def list_products_by_category(products):
     pass
+    products_incategory = []
+    category_tofind = input("What category are you looking for? ")
+    print(f"Products in {category_tofind} are: ")
+    for p in products:
+        if p.get_category_name() == category_tofind:
+            print(p)
 
 def product_index(products):
     pass
