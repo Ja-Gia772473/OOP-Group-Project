@@ -185,7 +185,14 @@ def main():
         elif choice == 3:
             edit_product(products)
         elif choice == 4:
-            search_product(products, term)
+            term = input("\nEnter search term (name or category): ")
+            if term != "":
+                results = search_product(products, term)
+                if len(results) > 0:
+                    print(f"\nSearch Results for '{term}':")
+                    print_products(results)
+                else:
+                    print(f"No products found matching '{term}'.")
         elif choice == 5:
             sell_product(products)
         elif choice == 6:
