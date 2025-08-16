@@ -1,13 +1,3 @@
-"""
-Product operations module for Smart Inventory Management System.
-This module defines functions to find, search, remove and edit products
-without modifying the original Main file.
-
-Assumptions:
-- Each product object has attributes `product_id`, `name`, `category`, `price`,
-  `quantity`, and `reorder_level` or corresponding getter/setter methods.
-- Category indices are integers 0-9 as per existing Main file mapping.
-"""
 
 def product_index(products, product_id):
     """Return the index of a product with the given ID in the list, or -1 if not found."""
