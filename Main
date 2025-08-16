@@ -2,10 +2,9 @@ import csv
 import os
 
 class Product:
-    
     CATEGORIES = {
         0: "Electronics",
-        1: "Clothing", 
+        1: "Clothing",
         2: "Home",
         3: "Grocery",
         4: "Books",
@@ -15,95 +14,98 @@ class Product:
         8: "Automotive",
         9: "Others"
     }
-    #Initialize constructor
-        # items:
-        #   product_id
-        #   name of the product
-        #   category
-        #   quantity, set to 0 as default
-        #   price (float), set to 0.0 as default
-        #   reorder_level - set to 0 as defalt
-    
-    def __init__(self, product_id, name, category, quantity = 0, price = 0.0, reorder_level = 0):
+    def __init__(self, product_id, name, category, quantity=0, price=0.0, reorder_level=0):
         self.product_id = product_id
         self.name = name
-        self.category = category
+        self.category = category  
         self.quantity = quantity
         self.price = price
         self.reorder_level = reorder_level
 
-    # Getter methods
+    # basic getters
+    def get_product_id(self):
+        return self.product_id
+    def get_name(self):
+        return self.name
     def get_category_name(self):
-        #return the category name using static mapping
         return self.CATEGORIES.get(self.category, "Unknown Category")
+    def get_quantity(self):
+        return self.quantity
+    def get_price(self):
+        return self.price
+    def get_reorder_level(self):
+        return self.reorder_level
+
+    # setters (except quantity)
+    def set_name(self, name):
+        self.name = name
+    def set_category(self, category):
+        self.category = category
+    def set_price(self, price):
+        self.price = price
+    def set_reorder_level(self, reorder_level):
+        self.reorder_level = reorder_level
 
     def needs_restock(self):
-        #check if product needs restocking
         return self.quantity <= self.reorder_level
-
     def restock(self, amount):
-        #increase quantity by specific amount.
         if amount > 0:
             self.quantity += amount
             return True
         return False
-
     def sell(self, amount):
-        #sell specified amount if enough stock is available
         if amount > 0 and self.quantity >= amount:
             self.quantity -= amount
             return True
         return False
-
-# Setter methods (all except quantity)
-    def set_product_id(self, product_id):
-        self.product_id = product_id
-
-    def set_name(self, name):
-        self.name = name
-
-    def set_category(self, category):
-        self.category = category
-
-    def set_price(self, price):
-        self.price = price
-
-    def set_reorder_level(self, reorder_level):
-        self.reorder_level = reorder_level
-
     def __str__(self):
-        # Return formatted string.
         return f"{self.product_id} {self.name} {self.get_category_name()} {self.quantity} {self.price:.2f}"
 
-# PART 2
+# helper to test if string is a valid float
+def is_float(s):
+    parts = s.split(".")
+    if len(parts) == 1 and parts[0].isdigit():
+        return True
+    if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
+        return True
+    return False
 
-def load_products(filename): # ID, Name, Category Idnex. Quantity, Price, Reorder Level. CVS file order.
+def load_products(filename):
     products = []
-    with open(filename, 'r') as file:
-        csv_reader = csv.reader(file)
-        for row in csv_reader:
-            product_id = row[0]
+    if os.path.exists(filename):
+        file = open(filename, "r")
+        reader = csv.reader(file)
+        for row in reader:
+            if len(row) < 6:
+                continue
+            # row order: ID, Name, Category, Quantity, Price, ReorderLevel
+            pid = row[0]
             name = row[1]
-            category_index = row[2]
-            quantity = row[3]
-            price = row[4]
-            reorder_level = row[5]
-
-            product = Product(product_id, name, category_index, quantity, price, reorder_level)
-            products.append(product)
-    
+            category = int(row[2]) if row[2].isdigit() else 0
+            quantity = int(row[3]) if row[3].isdigit() else 0
+            price = float(row[4]) if is_float(row[4]) else 0.0
+            reorder = int(row[5]) if row[5].isdigit() else 0
+            products.append(Product(pid, name, category, quantity, price, reorder))
+        file.close()
     return products
 
 def save_products(filename, products):
-    pass
-    with open(filename, "w") as file:
-        csv_writer = csv.writer(file)
-        pass
-
+    file = open(filename, "w", newline="")
+    writer = csv.writer(file)
+    for p in products:
+        writer.writerow([
+            p.get_product_id(),
+            p.get_name(),
+            p.category,        # still 0–9
+            p.get_quantity(),
+            f"{p.get_price():.2f}",
+            p.get_reorder_level()
+        ])
+    file.close()
 
 def print_menu():
     print("*************************************************")
-    print("* Welcome to Smart Inventory Management System * ")
+    print("* Welcome to Smart Inventory Management System *")
     print("*************************************************")
     print("1.  Add Product")
     print("2.  Remove Product")
@@ -116,127 +118,221 @@ def print_menu():
     print("9.  List Products by Category")
     print("10. Display All Products")
     print("11. Save and Exit")
+    choice_str = input("Enter your choice (1–11): ")
+    return choice_str
 
-    selection = int(input("Enter your choice (1-11): "))
-    if selection is None:
-        selection = 0
-    return selection
+def product_index(products, pid):
+    for i in range(len(products)):
+        if products[i].get_product_id().lower() == pid.lower():
+            return i
+    return -1
 
-def search_product(product, term):
-    pass
+def search_product(products, term):
+    results = []
+    term = term.lower()
+    for p in products:
+        if term in p.get_name().lower() or term in p.get_category_name().lower():
+            results.append(p)
+    return results
 
 def add_product(products):
-    pass
-    products_list = products
-    id = input("Whats the product's ID? ")
-    name = input("Whats is the product? ")
-    category = int(input("What category is the product in? "))
-    price = float(input("How much is this product? "))
-    reorder = int(input("What is the reorder level of this product? "))
-
-    product = Product(id, name, category, price, reorder)
-    products_list.append(product)
-    return products_list
+    pid = input("Enter product ID: ")
+    if product_index(products, pid) != -1:
+        print("ID already exists.")
+        return
+    name = input("Enter product name: ")
+    cat_str = input("Enter category (0–9): ")
+    if not cat_str.isdigit() or not (0 <= int(cat_str) <= 9):
+        print("Invalid category.")
+        return
+    qty_str = input("Enter quantity (integer ≥ 0): ")
+    if not qty_str.isdigit():
+        print("Invalid quantity.")
+        return
+    price_str = input("Enter price (non-negative number): ")
+    if not is_float(price_str):
+        print("Invalid price.")
+        return
+    rl_str = input("Enter reorder level (integer ≥ 0): ")
+    if not rl_str.isdigit():
+        print("Invalid reorder level.")
+    # create and add product
+    category = int(cat_str)
+    quantity = int(qty_str)
+    price = float(price_str)
+    reorder = int(rl_str)
+    products.append(Product(pid, name, category, quantity, price, reorder))
+    print("Product added successfully.")
 
 def remove_product(products):
-    pass
+    pid = input("Enter product ID to remove: ")
+    idx = product_index(products, pid)
+    if idx == -1:
+        print("Product not found.")
+        return
+    removed = products.pop(idx)
+    print(f"Removed: {removed}")
 
 def edit_product(products):
-    pass
+    pid = input("Enter product ID to edit: ")
+    idx = product_index(products, pid)
+    if idx == -1:
+        print("Product not found.")
+        return
+    p = products[idx]
+    print("Leave blank to keep current value.")
+    new_name = input(f"Name [{p.get_name()}]: ")
+    if new_name != "":
+        p.set_name(new_name)
+    new_cat = input(f"Category (0–9) [{p.category}]: ")
+    if new_cat != "":
+        if new_cat.isdigit() and 0 <= int(new_cat) <= 9:
+            p.set_category(int(new_cat))
+        else:
+            print("Invalid category; unchanged.")
+    new_price = input(f"Price [{p.get_price():.2f}]: ")
+    if new_price != "":
+        if is_float(new_price) and float(new_price) >= 0:
+            p.set_price(float(new_price))
+        else:
+            print("Invalid price; unchanged.")
+    new_rl = input(f"Reorder level [{p.get_reorder_level()}]: ")
+    if new_rl != "":
+        if new_rl.isdigit() and int(new_rl) >= 0:
+            p.set_reorder_level(int(new_rl))
+        else:
+            print("Invalid reorder level; unchanged.")
+    print("Product updated.")
 
 def sell_product(products):
-    pass
+    pid = input("Enter product ID to sell: ")
+    idx = product_index(products, pid)
+    if idx == -1:
+        print("Product not found.")
+        return
+    amount_str = input("Quantity to sell: ")
+    if not amount_str.isdigit():
+        print("Invalid quantity.")
+        return
+    amount = int(amount_str)
+    if amount <= 0:
+        print("Quantity must be positive.")
+        return
+    p = products[idx]
+    if p.sell(amount):
+        print(f"Sold {amount} units of {p.get_name()}.")
+    else:
+        print("Insufficient stock to sell.")
 
 def restock_product(products):
-    pass
+    pid = input("Enter product ID to restock: ")
+    idx = product_index(products, pid)
+    if idx == -1:
+        print("Product not found.")
+        return
+    amount_str = input("Quantity to add: ")
+    if not amount_str.isdigit():
+        print("Invalid quantity.")
+        return
+    amount = int(amount_str)
+    if amount <= 0:
+        print("Quantity must be positive.")
+        return
+    p = products[idx]
+    if p.restock(amount):
+        print(f"Added {amount} units to {p.get_name()}.")
+    else:
+        print("Restock failed.")
 
 def low_stock_report(products):
-    pass
-    restock_list = []
+    found = False
+    print("\n--- Low Stock Report ---")
     for p in products:
-        low_product = p.needs_restock()
-        restock_list.append(low_product)
-    return restock_list
+        if p.needs_restock():
+            if not found:
+                print(f"{'ID':<10} {'Name':<20} {'Qty':<5} {'Reorder':<7}")
+                print("-" * 45)
+                found = True
+            print(f"{p.get_product_id():<10} {p.get_name():<20} {p.get_quantity():<5} {p.get_reorder_level():<7}")
+    if not found:
+        print("No products below reorder level.")
 
 def inventory_summary(products):
-    print("\n--- Inventory Summary ---")
-    if len(products) == 0:
-        print("No products in inventory.")
-        return
-
     total_products = len(products)
     total_quantity = 0
-
     for p in products:
         total_quantity += p.get_quantity()
-
-    print(f"\nTotal Products: {total_products}")
-    print(f"Total Quantity: {total_quantity}")
+    print("\n--- Inventory Summary ---")
+    print(f"Total products: {total_products}")
+    print(f"Total quantity: {total_quantity}")
 
 def list_products_by_category(products):
-    pass
-    products_incategory = []
-    category_tofind = input("What category are you looking for? ")
-    print(f"Products in {category_tofind} are: ")
+    cat_str = input("Enter category (0–9): ")
+    if not cat_str.isdigit() or not (0 <= int(cat_str) <= 9):
+        print("Invalid category.")
+        return
+    cat = int(cat_str)
+    print(f"\nProducts in {Product.CATEGORIES.get(cat, 'Unknown')}:")
+    found = False
     for p in products:
-        if p.get_category_name() == category_tofind:
+        if p.category == cat:
             print(p)
-
-def product_index(products):
-    pass
+            found = True
+    if not found:
+        print("No products found in this category.")
 
 def print_products(products):
     if len(products) == 0:
-        print("No products to display.")
+        print("No products in inventory.")
         return
     print(f"\n{'ID':<10} {'Name':<20} {'Category':<18} {'Qty':<5} {'Price':<10}")
     print("-" * 64)
     for p in products:
         print(f"{p.get_product_id():<10} {p.get_name():<20} {p.get_category_name():<18} {p.get_quantity():<5} ${p.get_price():<9.2f}")
 
-
-#Main code here...
-
 def main():
     filename = "inventory.csv"
     products = load_products(filename)
-
-    while True:
+    choice = ""
+    while choice != "11":
         choice = print_menu()
-        if choice == 1:
+        # ensure the choice itself is a digit
+        if not choice.isdigit():
+            print("Invalid choice! Please enter a number 1–11.")
+            continue
+        choice_num = int(choice)
+        if choice_num == 1:
             add_product(products)
-        elif choice == 2:
+        elif choice_num == 2:
             remove_product(products)
-        elif choice == 3:
+        elif choice_num == 3:
             edit_product(products)
-        elif choice == 4:
-            term = input("\nEnter search term (name or category): ")
-            if term != "":
-                results = search_product(products, term)
-                if len(results) > 0:
-                    print(f"\nSearch Results for '{term}':")
-                    print_products(results)
-                else:
-                    print(f"No products found matching '{term}'.")
-        elif choice == 5:
+        elif choice_num == 4:
+            term = input("Search term (name or category): ")
+            results = search_product(products, term)
+            if len(results) > 0:
+                print(f"\nSearch results for '{term}':")
+                print_products(results)
+            else:
+                print("No matching products.")
+        elif choice_num == 5:
             sell_product(products)
-        elif choice == 6:
+        elif choice_num == 6:
             restock_product(products)
-        elif choice == 7:
+        elif choice_num == 7:
             low_stock_report(products)
-        elif choice == 8:
+        elif choice_num == 8:
             inventory_summary(products)
-        elif choice == 9:
+        elif choice_num == 9:
             list_products_by_category(products)
-        elif choice == 10:
-            print("\n--- All Products ---")
+        elif choice_num == 10:
             print_products(products)
-        elif choice == 11:
+        elif choice_num == 11:
             save_products(filename, products)
-            print("\nThank you for using Smart Inventory Management System!")
-            break
+            print("Thank you for using Smart Inventory Management System.")
         else:
-            print("Invalid choice! Please select 1-11.")
+            print("Invalid choice! Please select 1–11.")
+    # end while
 
 if __name__ == "__main__":
     main()
